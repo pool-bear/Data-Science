@@ -22,15 +22,14 @@ x_samp=df.loc[:,"X1":"X2"]
 r=LinearRegression().fit(x_samp,y_samp)
 blue=np.array([r.intercept_,r.coef_[0],r.coef_[1]]).reshape((-1,1))
 x_samp_=np.hstack((np.ones((df.shape[0],1)),x_samp)) #add ones to first column for calculation
-
 print("BLUE Beta=(",blue.reshape(1,-1),")")
 print("SSR=",loss(blue),"\n")
 
 # Start of Part B
 # Parameters
-rate=0.01 # Learning rate
+rate=0.003 # Learning rate
 sensitivity=0.0001 # Sensitivity in determining convergence
-beta=np.array([[0.01],[0.01],[0.01]])# Initial beta
+beta=np.array([[0.01],[0.01],[0.01]]) # Initial beta
 # Main
 def grad(input): # Gradient of loss at input, input is a beta
 	d=0.000001
