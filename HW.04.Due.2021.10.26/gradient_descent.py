@@ -3,7 +3,6 @@ Tianyi Lu, UNI:tl3126, E-mail:tl3126@columbia.edu
 ACTU PS5841 Data Science Assignment 4
 '''
 import numpy as np
-from numpy.random.mtrand import sample
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
@@ -29,6 +28,7 @@ print("SSR=",loss(blue),"\n")
 # Parameters
 rate=0.003 # Learning rate
 sensitivity=0.0001 # Sensitivity in determining convergence
+keep=50 # Number of final records to plot
 beta=np.array([[0.01],[0.01],[0.01]]) # Initial beta
 # Main
 def grad(input): # Gradient of loss at input, input is a beta
@@ -63,14 +63,14 @@ class final_records: # To record final 50 betas for plotting
 		else:
 			self.content[0:self.size-1]=self.content[1:self.size]
 			self.content[self.size-1]=add
-	def end_diff(self):
+	def end_diff(self): # To calculate the difference between the last two records
 		if(self.__used<2):
 			return 9999
 		return np.abs(self.content[self.__used-1]-self.content[self.__used-2])
 best=best_try()
-final=final_records(50)
+final=final_records(keep)
 count=0
-while(final.end_diff()>sensitivity):
+while(final.end_diff()>sensitivity): # Using batch gradient descent
 	count+=1
 	beta-=grad(beta)
 	if(loss(beta)<best.loss):
