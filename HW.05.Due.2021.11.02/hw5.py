@@ -4,17 +4,16 @@ ACTU PS5841 Data Science Assignment 5
 '''
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression as lr
 from numpy.linalg import inv
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score as cv
-from sklearn.metrics import mean_squared_error
 
 #Part a1
 raw=pd.read_csv('~/Documents/data.csv')
 x=raw.iloc[:,0:2]
 y=raw.iloc[:,2]
-reg=LinearRegression().fit(x,y)
+reg=lr().fit(x,y)
 print("Coefficients:","\n\tb0 =",reg.intercept_,"\n\tb1 =",reg.coef_[0],"\n\tb2 =",reg.coef_[1])
 
 #Part a2
@@ -40,7 +39,6 @@ for k in range(k_start,k_end+1):
     scores=cv(reg,x,y,cv=split,scoring='neg_mean_squared_error')
     scores=-scores
     mse_kfold.append(np.mean(scores))
-    # print("\t"+str(k)+"-fold: ",mse_kfold[k-2])
 print("Prediction variance estimated with 5-fold cross validation:",mse_kfold[5-k_start])
 print("MSE for other k:")
 for k in range(k_start,k_end):
