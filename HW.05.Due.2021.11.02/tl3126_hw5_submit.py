@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[2]:
+
+
 '''
 Tianyi Lu, UNI:tl3126, E-mail:tl3126@columbia.edu
 ACTU PS5841 Data Science Assignment 5
@@ -39,3 +45,10 @@ print("Prediction variance estimated:",np.mean(scores))
 print("MSE for test fold associated with K:")
 for i in range(k):
     print("\tK="+str(i+1)+": ",scores[i])
+
+
+# In[ ]:
+
+
+
+
