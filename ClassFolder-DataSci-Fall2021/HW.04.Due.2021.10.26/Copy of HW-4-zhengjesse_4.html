@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>demo.Fit.2D</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>HW4_Zheng</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -13968,54 +13968,80 @@ a.anchor-link {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[115]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">default_rng</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">bisplrep</span><span class="p">,</span> <span class="n">bisplev</span><span class="p">,</span> <span class="n">SmoothBivariateSpline</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">lib_Fit_2D</span> <span class="k">as</span> <span class="nn">ylib</span>
-</pre></div>
 
-     </div>
-</div>
-</div>
-</div>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;Data.csv&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">N_x</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">N_y</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">R_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N_x</span><span class="p">,</span> <span class="n">N_y</span><span class="p">)</span>
-<span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_y</span><span class="p">))</span>
-<span class="n">R_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">R_grid</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N_x</span><span class="o">*</span><span class="n">N_y</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>
-</pre></div>
+<span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span><span class="s1">&#39;X2&#39;</span><span class="p">]]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
 
-     </div>
-</div>
-</div>
-</div>
+<span class="n">lm</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
+<span class="n">lm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+<span class="n">beta_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lm</span><span class="o">.</span><span class="n">intercept_</span><span class="p">,</span> <span class="n">lm</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span>
+<span class="n">y_hat</span> <span class="o">=</span> <span class="n">lm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">SSR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y_hat</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># raw</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span> <span class="o">=</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;^&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;beta_hat is&#39;</span><span class="p">,</span> <span class="n">beta_hat</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;SSR is&#39;</span><span class="p">,</span> <span class="n">SSR</span><span class="p">)</span>
+
+<span class="n">learningRate</span> <span class="o">=</span> <span class="mf">0.0001</span>
+<span class="n">SSR_learn</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">b0_learn</span><span class="p">,</span> <span class="n">b1_learn</span><span class="p">,</span> <span class="n">b2_learn</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span>
+<span class="n">y_learn</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">x1</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">]</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;X2&#39;</span><span class="p">]</span>
+
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>    
+
+    <span class="n">g0</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_learn</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">g1</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y_learn</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">x1</span><span class="p">)</span>
+    <span class="n">g2</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y_learn</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">x2</span><span class="p">)</span>
+    
+    <span class="c1">#print(y_learn - y)</span>
+    <span class="c1">#print(g0, g1, g2)</span>
+    
+    <span class="n">b0_learn</span> <span class="o">=</span> <span class="n">b0_learn</span> <span class="o">-</span> <span class="n">learningRate</span> <span class="o">*</span> <span class="n">g0</span>
+    <span class="n">b1_learn</span> <span class="o">=</span> <span class="n">b1_learn</span> <span class="o">-</span> <span class="n">learningRate</span> <span class="o">*</span> <span class="n">g1</span>
+    <span class="n">b2_learn</span> <span class="o">=</span> <span class="n">b2_learn</span> <span class="o">-</span> <span class="n">learningRate</span> <span class="o">*</span> <span class="n">g2</span>
+    
+    <span class="n">y_learn</span> <span class="o">=</span> <span class="n">b0_learn</span> <span class="o">+</span> <span class="n">b1_learn</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">b2_learn</span> <span class="o">*</span> <span class="n">x2</span> 
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y_learn</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">SSR_learn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+    <span class="c1">#print(ssr)</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">SSR_learn</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">SSR_learn</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mf">0.0000001</span><span class="p">:</span> 
+        <span class="k">break</span>
+
+
+<span class="c1">#print(SSR_learn[-50:])</span>
+<span class="c1">#plt.ylim([19, 20])</span>
+<span class="c1">#plt.scatter(List50, SSR_learn[-50:])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;b1: smallest loss (SSR): &#39;</span><span class="p">,</span> <span class="n">SSR_learn</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1">#can get this number lower by turning up the learning rate but don&#39;t want the program to run for hours</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;b2: corresponding learn rate: &#39;</span><span class="p">,</span> <span class="n">learningRate</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;b3: corresponding &quot;optimal&quot; weights: &#39;</span><span class="p">,</span> <span class="n">b0_learn</span><span class="p">,</span> <span class="n">b1_learn</span><span class="p">,</span> <span class="n">b2_learn</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;b4: corresponding number of updates: &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">SSR_learn</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;b5: plot is below. &#39;</span><span class="p">)</span>
+
+<span class="n">updateNumber</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;last 50000 updates&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Loss (RSS)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">updateNumber</span><span class="p">,</span> <span class="n">SSR_learn</span><span class="p">[</span><span class="o">-</span><span class="mi">50000</span><span class="p">:])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
@@ -14024,81 +14050,53 @@ a.anchor-link {
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Bivariate Spline</span>
-<span class="n">tck</span> <span class="o">=</span> <span class="n">SmoothBivariateSpline</span><span class="p">(</span><span class="n">R_list</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">R_list</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_list</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span>
+<div class="jp-Cell-outputWrapper">
 
-<span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N_x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N_y</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span> 
-<span class="n">z</span> <span class="o">=</span> <span class="n">tck</span><span class="o">.</span><span class="n">ev</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
 
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span> <span class="o">=</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linewidths</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
+<div class="jp-OutputArea jp-Cell-outputArea">
 
-     </div>
-</div>
-</div>
-</div>
+<div class="jp-OutputArea-child">
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
-     </div>
-</div>
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>   Unnamed: 0           y  X1  X2
+0           0   60.378107   1   1
+1           1  168.954503   2   4
+2           2  339.173873   3   9
+3           3  565.117065   4  16
+4           4  863.599415   5  25
+beta_hat is [16.43090356 13.60234829 31.10969492]
+SSR is 19.256351146675897
+b1: smallest loss (SSR):  19.258134786564174
+b2: corresponding learn rate:  0.0001
+b3: corresponding &#34;optimal&#34; weights:  16.341066032169916 13.669772444604574 31.09924462906503
+b4: corresponding number of updates:  151277
+b5: plot is below. 
+</pre>
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># WH 3D</span>
-<span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">N_x</span><span class="o">*</span><span class="n">N_y</span><span class="p">)</span>     <span class="c1">#example, equal weight, not normalized</span>
-<span class="n">h</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">v</span> <span class="o">=</span> <span class="mi">5</span>
+<div class="jp-OutputArea-child">
 
-<span class="n">S</span> <span class="o">=</span> <span class="n">ylib</span><span class="o">.</span><span class="n">WH2D_3_3</span><span class="p">(</span><span class="n">R_grid</span><span class="p">,</span><span class="n">W</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
-</pre></div>
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
-     </div>
-</div>
-</div>
+
+
+
+<div class="jp-RenderedImage jp-OutputArea-output ">
+<img src="data:image/png;base64,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
+"
+>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span> <span class="o">=</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linewidths</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
+</div>
 
-     </div>
 </div>
-</div>
+
 </div>
 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
