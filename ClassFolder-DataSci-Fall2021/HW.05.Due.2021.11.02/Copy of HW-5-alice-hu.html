@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>demo.Fit.2D</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Linear Regression, Prediction Variance, Cross Validation</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -13971,15 +13971,224 @@ a.anchor-link {
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[65]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">default_rng</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">bisplrep</span><span class="p">,</span> <span class="n">bisplev</span><span class="p">,</span> <span class="n">SmoothBivariateSpline</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">lib_Fit_2D</span> <span class="k">as</span> <span class="nn">ylib</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[66]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Read data and construct x,y</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data.csv&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;X2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>[[  0   0]
+ [  1   0]
+ [  2   0]
+ ...
+ [197 199]
+ [198 199]
+ [199 199]] [  8.79475795  12.25772847   7.63015753 ... 702.15533586 706.09097741
+ 708.23019657]
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[67]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Apply Linear Regression Model</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                      y   R-squared:                       1.000
+Model:                            OLS   Adj. R-squared:                  1.000
+Method:                 Least Squares   F-statistic:                 6.750e+07
+Date:                Mon, 01 Nov 2021   Prob (F-statistic):               0.00
+Time:                        22:55:53   Log-Likelihood:            -1.0100e+05
+No. Observations:               40000   AIC:                         2.020e+05
+Df Residuals:                   39997   BIC:                         2.020e+05
+Df Model:                           2                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P&gt;|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         10.0223      0.040    251.754      0.000       9.944      10.100
+x1             0.4999      0.000   1909.839      0.000       0.499       0.500
+x2             2.9997      0.000   1.15e+04      0.000       2.999       3.000
+==============================================================================
+Omnibus:                        2.235   Durbin-Watson:                   2.000
+Prob(Omnibus):                  0.327   Jarque-Bera (JB):                2.208
+Skew:                          -0.002   Prob(JB):                        0.332
+Kurtosis:                       2.964   Cond. No.                         401.
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[68]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Find Coefficients and Sigma from the Model</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Regression Coefficients:&quot;</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Residual Standard Error:&quot;</span><span class="p">,</span><span class="n">sigma</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Regression Coefficients: [10.02234968  0.49988121  2.99973895]
+Residual Standard Error: 3.022274454769728
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[69]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Calculate Prediction Variance of the Given Test Point</span>
+<span class="n">test_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mf">3.14</span><span class="p">,</span><span class="mf">3.14</span><span class="p">])</span>
+<span class="n">predict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_x</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted y of the Test Point:&quot;</span><span class="p">,</span><span class="n">predict</span><span class="p">)</span>
+<span class="n">var</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">test_x</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">test_x</span><span class="p">))</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Prediction Variance of the Test Point:&quot;</span><span class="p">,</span><span class="n">var</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Predicted y of the Test Point: [21.01115696]
+Prediction Variance of the Test Point: 9.135643457279087
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[70]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">KFold</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
 </pre></div>
 
      </div>
@@ -13990,14 +14199,13 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[76]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">N_x</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">N_y</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">R_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N_x</span><span class="p">,</span> <span class="n">N_y</span><span class="p">)</span>
-<span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_y</span><span class="p">))</span>
-<span class="n">R_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">R_grid</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N_x</span><span class="o">*</span><span class="n">N_y</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Create 5-Fold Model</span>
+<span class="n">kf</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">kf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14008,15 +14216,28 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[77]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># raw</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span> <span class="o">=</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;^&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
+<span class="c1">#We want to look at the Mean Squared Error/MSE</span>
+<span class="n">mse_score</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="c1">#Split the Data into Training and Testing Sets</span>
+<span class="k">for</span> <span class="n">train_index</span> <span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">kf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">x_train</span> <span class="p">,</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">train_index</span><span class="p">]</span> <span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
+    <span class="n">y_train</span> <span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">train_index</span><span class="p">]</span> <span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
+    <span class="c1">#Fit the Training Data x,y onto the Linear Regression Model</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+    <span class="c1">#Predict y Values Based on x Testing Points</span>
+    <span class="n">pred_values</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+    <span class="c1">#Compare Predicted y with Testing/True y</span>
+    <span class="c1">#Calculate the MSE for Each Fold</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">pred_values</span> <span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+    <span class="c1">#Sum up All MSE</span>
+    <span class="n">mse_score</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span>
+     
+<span class="c1">#Get the Expected MSE Which is the Average of MSE of ALL 5 Folds</span>
+<span class="n">avg_mse</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mse_score</span><span class="p">)</span><span class="o">/</span><span class="n">k</span>
 </pre></div>
 
      </div>
@@ -14024,24 +14245,15 @@ a.anchor-link {
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[78]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Bivariate Spline</span>
-<span class="n">tck</span> <span class="o">=</span> <span class="n">SmoothBivariateSpline</span><span class="p">(</span><span class="n">R_list</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">R_list</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_list</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span>
-
-<span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N_x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N_y</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span> 
-<span class="n">z</span> <span class="o">=</span> <span class="n">tck</span><span class="o">.</span><span class="n">ev</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
-
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span> <span class="o">=</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linewidths</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;MSE of Each Fold : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mse_score</span><span class="p">))</span>
+<span class="c1">#Expected MSE is the Prediction Variance</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Prediction Variance : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">avg_mse</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14049,70 +14261,26 @@ a.anchor-link {
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
+<div class="jp-Cell-outputWrapper">
 
-     </div>
-</div>
-</div>
-</div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># WH 3D</span>
-<span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">N_x</span><span class="o">*</span><span class="n">N_y</span><span class="p">)</span>     <span class="c1">#example, equal weight, not normalized</span>
-<span class="n">h</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">v</span> <span class="o">=</span> <span class="mi">5</span>
+<div class="jp-OutputArea jp-Cell-outputArea">
 
-<span class="n">S</span> <span class="o">=</span> <span class="n">ylib</span><span class="o">.</span><span class="n">WH2D_3_3</span><span class="p">(</span><span class="n">R_grid</span><span class="p">,</span><span class="n">W</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
-</pre></div>
+<div class="jp-OutputArea-child">
 
-     </div>
-</div>
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>MSE of Each Fold : [9.166084971241785, 9.19514267995239, 9.00878302820188, 9.16490229354598, 9.139589652963947]
+Prediction Variance : 9.134900525181198
+</pre>
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span> <span class="o">=</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linewidths</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">R_grid</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-     </div>
-</div>
-</div>
 </div>
 
 </div>
